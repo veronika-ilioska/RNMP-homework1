@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Dashboard - Stream observatory" type="PythonConfigurationType" factoryName="Python">
+    <module name="python" />
+    <option name="IS_MODULE_SDK" value="true" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/dashboard.py" />
+    <option name="PARAMETERS" value="--port 8501 --input-topic github-users-repo1 --analytics-topic github-user-sessions-repo1 --events-topic github-user-alerts-repo1" />
+    <envs><env name="PYTHONUNBUFFERED" value="1" /></envs>
+    <method v="2" />
+  </configuration>
+</component>

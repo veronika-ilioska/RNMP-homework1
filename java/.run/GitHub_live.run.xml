@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="GitHub - Live (both modules)" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="mk.ukim.rnmp.GitHubPipeline" />
+    <module name="github-pipeline" />
+    <option name="INCLUDE_PROVIDED_SCOPE" value="true" />
+    <option name="includeProvidedScope" value="true" />
+    <option name="VM_PARAMETERS" value="-Xmx1024m --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED" />
+    <option name="PROGRAM_PARAMETERS" value="--job both --mode stream --start-offset earliest --bootstrap-servers localhost:9092 --input-topic github-users-repo1 --analytics-topic github-user-sessions-repo1 --events-topic github-user-alerts-repo1 --session-gap-minutes 30 --watermark-seconds 180 --quiet-seconds 1800 --parallelism 1" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <shortenClasspath name="ARGS_FILE" />
+    <method v="2"><option name="Make" enabled="true" /></method>
+  </configuration>
+</component>

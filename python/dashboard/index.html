@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GitHub Stream Observatory</title>
+  <link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brand-mark">G<span>•</span></span><span>STREAM<br><strong>OBSERVATORY</strong></span></a>
+    <div class="sidebar-label">WORKSPACE</div>
+    <button class="nav-item selected" data-view="overview"><span>◈</span> Pipeline overview</button>
+    <button class="nav-item" data-view="sessions"><span>▥</span> Session windows</button>
+    <button class="nav-item" data-view="input"><span>≋</span> Incoming events</button>
+    <button class="nav-item" data-view="events"><span>◇</span> Notifications</button>
+    <div class="sidebar-label second-label">PIPELINE RULES</div>
+    <dl class="rules"><dt>Partition key</dt><dd>actor.id</dd><dt>Session inactivity gap</dt><dd>30 minutes</dd><dt>Watermark allowance</dt><dd>3 minutes</dd><dt>Repository inactivity</dt><dd>30 minutes</dd></dl>
+    <div class="sidebar-bottom"><span class="small-dot"></span> Java + Apache Flink<br><small>Kafka JSON streams · RNMP homework</small></div>
+  </aside>
+  <main>
+    <header><div><div class="eyebrow">GITHUB ACTIVITY / EVENT TIME</div><h1>Stream observatory</h1><p class="subtitle">Follow each event from Kafka input to a completed user session.</p></div><div class="header-actions"><span id="connection-status" class="status connecting">Connecting</span><button id="settings-button" class="button">Connection settings</button></div></header>
+    <div id="error-banner" class="notice error" hidden></div>
+    <section class="pipeline" aria-label="Pipeline stages">
+      <div><span class="stage-label">01 / PRODUCER</span><h3>Python replay</h3><p id="producer-state">Waiting for Kafka input</p></div><span class="flow-arrow">→</span>
+      <div><span class="stage-label">02 / TRANSPORT</span><h3>Kafka input</h3><p id="input-topic" class="mono">—</p></div><span class="flow-arrow">→</span>
+      <div><span class="stage-label">03 / PROCESSING</span><h3>Flink consumers</h3><p id="flink-state">Checking job status</p></div><span class="flow-arrow">→</span>
+      <div><span class="stage-label">04 / OUTPUT</span><h3>Sessions + notifications</h3><p>Separate Kafka JSON topics</p></div>
+    </section>
+    <section class="metrics" aria-label="Stream counters">
+      <article><div class="metric-label">KAFKA INPUT RECORDS <span>↗</span></div><strong id="input-total">0</strong><div id="input-detail" class="metric-detail">Retained records in the input topic</div></article>
+      <article><div class="metric-label">DASHBOARD CONSUMED <span>≋</span></div><strong id="consumed-total">0</strong><div class="metric-detail"><b id="lag-total">0</b> records behind Kafka input</div></article>
+      <article><div class="metric-label">COMPLETED SESSIONS <span>▥</span></div><strong id="session-total">0</strong><div class="metric-detail">Results confirmed by the Flink output topic</div></article>
+      <article><div class="metric-label">REPOSITORY INACTIVITY ALERTS <span>◇</span></div><strong id="alert-total">0</strong><div class="metric-detail">No user activity in that repository for 30 event-time minutes</div></article>
+    </section>
+    <section class="charts-grid overview-section">
+      <article class="panel throughput"><div class="panel-title"><div><h2>Input arrival rate</h2><p>Records observed per wall-clock second</p></div><span id="current-rate" class="value-badge">0 / sec</span></div><svg id="rate-chart" viewBox="0 0 700 165" role="img" aria-label="Rate of input records observed by the dashboard"></svg><div class="chart-caption"><span>Last 3 minutes · includes historical catch-up</span><span id="last-updated">Waiting for input</span></div></article>
+      <article class="panel types"><div class="panel-title"><div><h2>Event mix</h2><p>Observed input records</p></div><span class="tag">JSON</span></div><div id="event-mix" class="event-mix"><div class="empty-small">Event types will appear here.</div></div><div class="type-footer"><span>Out-of-order arrivals</span><strong id="disorder-total">0</strong></div></article>
+    </section>
+    <section class="panel timeline-panel overview-section"><div class="panel-title"><div><h2>User session timeline</h2><p>Event time in UTC · most active users in the retained input</p></div><div class="legend"><span><i class="legend-confirmed"></i>Flink confirmed</span><span><i class="legend-preview"></i>Input preview</span><span><i class="legend-event"></i>Event</span></div></div><div id="timeline-empty" class="empty">Sessions begin with a user's first event.<br><small>Start the producer to see activity here.</small></div><div class="timeline-scroll"><svg id="timeline" viewBox="0 0 1000 260" role="img" aria-label="User activity and session intervals"></svg></div><div class="notice timeline-note">Striped intervals are a preview computed from up to 20,000 retained input events using a 30-minute gap. Only solid intervals are confirmed by a Flink result. Preview intervals can merge as out-of-order events arrive.</div></section>
+    <section class="panel data-panel"><div class="data-toolbar"><div class="tabs" role="tablist"><button class="tab active" data-tab="analytics">Session windows <span id="session-tab-count">0</span></button><button class="tab" data-tab="input">Incoming events</button><button class="tab" data-tab="events">Notifications</button></div><div class="table-actions"><input id="user-filter" type="search" placeholder="Filter by user ID or login" aria-label="Filter by user ID or login"><button id="pause-button" class="button">Pause view</button><button id="export-button" class="button">Export view</button></div></div><div class="table-wrap"><table><thead id="table-head"></thead><tbody id="table-body"></tbody></table></div><div id="table-empty" class="empty">Waiting for completed sessions.<br><small>Sessions close after the watermark passes the last event plus 30 minutes. A stopped live input can leave the final sessions pending.</small></div><div class="table-footer"><span id="table-count">0 records shown</span><span>Click a row to inspect its Kafka envelope</span></div></section>
+    <footer><span id="footer-offset">Dashboard source: earliest · no committed consumer offsets</span><span>All times UTC <span class="footer-divider">|</span> <a href="http://localhost:8081" target="_blank" rel="noreferrer">Flink cluster UI</a> <span class="footer-divider">|</span> <button id="comparison-button" class="text-button">Earliest / latest comparison</button></span></footer>
+  </main>
+  <dialog id="settings-dialog"><form id="settings-form"><div class="dialog-title"><div><h2>Connect to your pipeline</h2><p>Topic names must match the producer and Java application.</p></div><button type="button" class="icon-button close-dialog" aria-label="Close">×</button></div><label>Kafka bootstrap servers<input name="bootstrap_servers" required></label><label>Input topic<input name="input_topic" required></label><label>Session result topic<input name="analytics_topic" required></label><label>Notification topic<input name="events_topic" required></label><div class="form-grid"><label>Dashboard starting offset<select name="start_offset"><option value="earliest">Earliest (include existing records)</option><option value="latest">Latest (new records only)</option></select></label><label>Flink REST URL (optional)<input name="flink_url" required></label></div><p class="notice">Connecting resets the dashboard's in-memory view. It does not restart Flink, launch a producer, change Kafka records, or alter the Flink source offsets. The displayed session preview assumes a 30-minute gap.</p><div id="settings-error" class="error" role="alert"></div><div class="dialog-actions"><button type="button" class="button close-dialog">Cancel</button><button class="button primary" type="submit">Connect</button></div></form></dialog>
+  <dialog id="inspect-dialog"><div class="dialog-title"><h2 id="inspect-title">Kafka record</h2><button class="icon-button close-dialog" aria-label="Close">×</button></div><pre id="inspect-json"></pre></dialog>
+</body>
+</html>

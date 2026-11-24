@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Consumer - Notifications" type="PythonConfigurationType" factoryName="Python">
+    <module name="python" />
+    <option name="IS_MODULE_SDK" value="true" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/consume_messages.py" />
+    <option name="PARAMETERS" value="github-user-alerts-repo1" />
+    <envs><env name="PYTHONUNBUFFERED" value="1" /></envs>
+    <method v="2" />
+  </configuration>
+</component>

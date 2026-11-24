@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+.idea/
+*.iml
+*.json.gz
+preview.jsonl

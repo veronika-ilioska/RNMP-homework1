@@ -1,0 +1,43 @@
+services:
+  jobmanager:
+    profiles: [processing]
+    build: ./java
+    image: hw1-github-java:2.3.0
+    command: jobmanager
+    ports:
+      - "8081:8081"
+    volumes:
+      - flink-savepoints:/opt/flink/savepoints
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        parallelism.default: 1
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/127.0.0.1/8081"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  taskmanager:
+    profiles: [processing]
+    image: hw1-github-java:2.3.0
+    command: taskmanager
+    volumes:
+      - flink-savepoints:/opt/flink/savepoints
+    depends_on:
+      jobmanager:
+        condition: service_healthy
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        parallelism.default: 1
+
+volumes:
+  flink-savepoints:
+
+networks:
+  default:
+    external: true
+    # Created by the course Kafka configuration in the Python base project.
+    name: ${KAFKA_NETWORK:-python_default}

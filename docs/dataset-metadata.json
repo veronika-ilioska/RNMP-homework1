@@ -1,0 +1,26 @@
+{
+  "filename": "2026-10-15-15.json.gz",
+  "origin": "Provided during class; filename supplied by the student",
+  "sha256": "5d4fa2b4c0a320307192874938f6b1a91b889a6aab7ded435010528ba93974aa",
+  "compressed_bytes": 3727514,
+  "events": 3582,
+  "users": 2474,
+  "event_types": {
+    "PullRequestReviewEvent": 532,
+    "PullRequestEvent": 1131,
+    "IssuesEvent": 849,
+    "ReleaseEvent": 145,
+    "WatchEvent": 308,
+    "PullRequestReviewCommentEvent": 193,
+    "ForkEvent": 71,
+    "MemberEvent": 25,
+    "CommitCommentEvent": 8,
+    "GollumEvent": 3,
+    "IssueCommentEvent": 315,
+    "PublicEvent": 1,
+    "DiscussionEvent": 1
+  },
+  "first_event_utc": "2026-10-15T15:00:00Z",
+  "last_event_utc": "2026-10-15T15:59:55Z",
+  "key": "actor.id"
+}
