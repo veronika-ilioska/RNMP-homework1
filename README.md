@@ -15,12 +15,6 @@ Get **2026-10-15-15.json.gz** from the course materials and save it in Downloads
 The dataset is not included in this repository. No extraction is needed.
 
 Open PowerShell in the project root: the folder containing this README.
-For this computer, that is:
-
-```powershell
-cd C:\Users\ilios\Desktop\hw1-231035
-```
-
 Create the Python environment and install dependencies once:
 
 ```powershell
@@ -33,8 +27,6 @@ python -m venv python/.venv
 1. Use **File > Open** to open the project's `python` folder.
 2. Open Settings with **Ctrl + Alt + S** and search for **Python Interpreter**.
 3. Select the existing interpreter `python\.venv\Scripts\python.exe` from this project.
-   On this computer its full path is:
-   `C:\Users\ilios\Desktop\hw1-231035\python\.venv\Scripts\python.exe`.
 4. The saved Run configurations should appear in the Run selector.
 
 **Configure IntelliJ:**
@@ -100,13 +92,8 @@ run the same consumers in two separate terminals:
 
 In PyCharm, select **Producer - IDE live** and click **Run**.
 
-Its saved dataset path is:
-
-```text
-C:/Users/ilios/Downloads/2026-10-15-15.json.gz
-```
-
-If your file is elsewhere, change `--input` in **Run > Edit Configurations > Parameters**.
+Set `--input` in **Run > Edit Configurations > Parameters** to the location of
+`2026-10-15-15.json.gz` on your computer.
 
 The producer sends the file at 60x speed: one hour of event time targets about
 one real minute, plus delivery overhead. It delays 10% of records by 120 data
@@ -184,21 +171,6 @@ course `python/stop.sh` removes it and its container-stored Kafka records.
 - **No output displayed:** verify that Java is still running and all topic names match. Select **Earliest** in dashboard settings to inspect existing output records.
 - **Old records appear:** earliest includes retained history. Use fresh topics for a clean experiment.
 
-## Optional: complete replay using Docker Flink
-
-Use this instead of running the Java job in IntelliJ. Commands run from the
-project root. Pick unused topic names for each replay.
-
-```powershell
-docker compose -f python/docker-compose.yml up -d --wait
-.\python\.venv\Scripts\python.exe python/produce_messages.py --input "$env:USERPROFILE\Downloads\2026-10-15-15.json.gz" --topic github-replay1-input --speed 60
-powershell -ExecutionPolicy Bypass -File java/run_jobs.ps1 -Build -Mode replay -StartOffset earliest -InputTopic github-replay1-input -AnalyticsTopic github-replay1-sessions -EventsTopic github-replay1-alerts
-```
-
-The launcher starts the Docker JobManager and TaskManager. A bounded replay
-reads the existing input, closes final windows/timers and finishes. To view it,
-set the dashboard's topics to the three replay names above and select Earliest.
-
 ## Optional: reproduce the earliest/latest comparison
 
 This experiment uses Docker Flink. Run from the project root:
@@ -226,12 +198,6 @@ The Java application follows the supplied `flink-demo (1).zip` examples.
 Flink is **2.3.0**, Java **17**, the Kafka broker **3.9.0**, and the Java Kafka
 connector **5.0.0-2.2**, matching the exercise POM. Python uses `kafka-python==2.3.3`.
 
-Create the submission ZIP from the project root:
-
-```powershell
-.\python\.venv\Scripts\python.exe python/package_submission.py
-```
-
-The result is `output/submission/hw1-231035.zip`. It contains source code,
-configuration, documentation and aggregate reports. It excludes the dataset,
-virtual environments, build outputs, local databases and runtime logs.
+Submit the GitHub repository link on Moodle and give the teaching assistant access.
+The repository includes the source code, configuration, PDF documentation and
+comparison reports. Keep the dataset, virtual environments and build outputs out of Git.

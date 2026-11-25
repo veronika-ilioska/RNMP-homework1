@@ -235,7 +235,7 @@ copy as late. Re-running jobs also appends results. Use previously unused input
 and output topic names for a clean run:
 
 ```powershell
-..\python\.venv\Scripts\python.exe ..\python\produce_messages.py --input "C:\Users\ilios\Downloads\2026-10-15-15.json.gz" --topic github-events-users --speed 60
+..\python\.venv\Scripts\python.exe ..\python\produce_messages.py --input "$env:USERPROFILE\Downloads\2026-10-15-15.json.gz" --topic github-events-users --speed 60
 .\run_jobs.ps1 -InputTopic github-events-users -AnalyticsTopic github-user-activity-java -EventsTopic github-user-alerts-java
 ```
 

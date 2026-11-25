@@ -15,7 +15,7 @@ See [the workspace guide](../README.md) for the complete flow.
 ## Run with PyCharm's green Run button
 
 Open this `python` folder and set the project interpreter to
-`C:\Users\ilios\Desktop\hw1-231035\python\.venv\Scripts\python.exe`.
+`.venv\Scripts\python.exe`.
 The `.run` directory supplies these saved configurations in the Run selector:
 
 - **Producer - IDE live** sends your dataset to `github-users-repo1` at speed 60.
@@ -83,7 +83,7 @@ From this project directory:
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 docker compose up -d --wait
-.\.venv\Scripts\python.exe produce_messages.py --input "C:\Users\ilios\Downloads\2026-10-15-15.json.gz" --speed 60 --late-fraction 0.1 --delay-seconds 120
+.\.venv\Scripts\python.exe produce_messages.py --input "$env:USERPROFILE\Downloads\2026-10-15-15.json.gz" --speed 60 --late-fraction 0.1 --delay-seconds 120
 ```
 
 The producer exits after all records, including delayed records, are sent.
@@ -157,7 +157,7 @@ With course Kafka and this project's updated Docker Flink services running, run 
 the Python folder:
 
 ```powershell
-.\.venv\Scripts\python.exe compare_offsets.py --input "C:\Users\ilios\Downloads\2026-10-15-15.json.gz"
+.\.venv\Scripts\python.exe compare_offsets.py --input "$env:USERPROFILE\Downloads\2026-10-15-15.json.gz"
 ```
 
 The script produces the same data twice into fresh Kafka topics, starts the
