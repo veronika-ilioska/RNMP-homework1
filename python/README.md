@@ -30,8 +30,8 @@ Start Docker Desktop, then start Kafka from PyCharm's Terminal in this folder:
 docker compose up -d --wait
 ```
 
-Run the two consumers, then IntelliJ's **GitHub - Live (both modules)**, then
-**Producer - IDE live**. For the data already in `github-users-run3`, run the
+Start IntelliJ's **GitHub - Live (both modules)** first, then the dashboard
+and two consumers, and finally **Producer - IDE live**. For the data already in `github-users-run3`, run the
 consumers and IntelliJ's **GitHub - Replay run3 (both modules)** instead.
 The live job stays running after the producer finishes and needs advancing event
 time to close the final sessions. Replay closes them automatically at its end.
