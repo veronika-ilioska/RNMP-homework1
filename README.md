@@ -96,7 +96,7 @@ Set `--input` in **Run > Edit Configurations > Parameters** to the location of
 `2026-10-15-15.json.gz` on your computer.
 
 The producer sends the file at 60x speed: one hour of event time targets about
-one real minute, plus delivery overhead. It delays 10% of records by 120 data
+one real minute, plus delivery overhead. It randomly selects and delays 10% of records by 120 data
 seconds. Flink allows 180 data seconds of out-of-order arrival.
 
 **Startup order: Kafka → Java → dashboard/consumers → producer.**

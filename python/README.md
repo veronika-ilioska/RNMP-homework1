@@ -68,7 +68,7 @@ needed. It contains one GitHub event per line. Defaults:
   derive their user identity from `actor.id` in each JSON event.
 - Topic: `github-events`; broker: `localhost:9092`.
 - Speed: `60` data seconds per real second, so one hour takes one minute.
-- Delayed records: 10%, selected reproducibly with seed 42, each held back by
+- Delayed records: 10%, selected randomly on each run, each held back by
   120 data seconds (2 real seconds at speed 60).
 
 The original event fields, including the nested GitHub payload, are retained.

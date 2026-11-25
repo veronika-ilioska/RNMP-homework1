@@ -68,14 +68,13 @@ def load_events(path, timestamp_field="created_at", key_field="actor.id"):
     return events
 
 
-def schedule_events(events, late_fraction, delay_seconds, seed):
+def schedule_events(events, late_fraction, delay_seconds):
     """Hold selected events back while newer events continue to be released.
 
     Delay is measured in DATA seconds, and is divided by playback speed later.
     Sorting by release time also drains delayed events after the input ends.
     """
-    rng = random.Random(seed)
-    delayed_indices = set(rng.sample(range(len(events)), round(len(events) * late_fraction)))
+    delayed_indices = set(random.sample(range(len(events)), round(len(events) * late_fraction)))
     delay_ms = round(delay_seconds * 1000)
     schedule = []
     for index, event in enumerate(events):
@@ -155,7 +154,6 @@ def arguments():
     parser.add_argument("--speed", type=float, default=60, help="Data seconds per real second (60 = 1h in 1min)")
     parser.add_argument("--late-fraction", type=float, default=0.1, help="Fraction of records to delay, from 0 to 1")
     parser.add_argument("--delay-seconds", type=float, default=120, help="Extra delay in DATA seconds")
-    parser.add_argument("--seed", type=int, default=42, help="Reproducible selection of delayed records")
     args = parser.parse_args()
     if not math.isfinite(args.speed) or args.speed <= 0:
         parser.error("--speed must be finite and greater than zero")
@@ -173,7 +171,7 @@ def main():
     producer = None
     try:
         events = load_events(args.input, args.timestamp_field, args.key_field)
-        schedule = schedule_events(events, args.late_fraction, args.delay_seconds, args.seed)
+        schedule = schedule_events(events, args.late_fraction, args.delay_seconds)
         logging.info("Loaded %s events; speed=%sx; planned duration=%.2fs",
                      len(events), args.speed,
                      (schedule[-1].due_ms - events[0].timestamp_ms) / 1000 / args.speed)

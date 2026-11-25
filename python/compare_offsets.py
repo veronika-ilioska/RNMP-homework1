@@ -38,7 +38,8 @@ class Experiment:
         self.metric_paths = {}
         self.active_jobs = set()
         self.events = load_events(args.input)
-        self.schedule = schedule_events(self.events, 0.1, 120, 42)
+        # Randomize once, then reuse this exact order in both offset scenarios.
+        self.schedule = schedule_events(self.events, 0.1, 120)
 
     def progress(self, message):
         print(message, flush=True)
