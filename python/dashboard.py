@@ -24,9 +24,9 @@ MAX_EVENTS = 20_000
 @dataclass(frozen=True)
 class Connection:
     bootstrap_servers: str = "localhost:9092"
-    input_topic: str = "github-users-repo1"
-    analytics_topic: str = "github-user-sessions-repo1"
-    events_topic: str = "github-user-alerts-repo1"
+    input_topic: str = "github-users-multi1"
+    analytics_topic: str = "github-user-sessions-multi1"
+    events_topic: str = "github-user-alerts-multi1"
     start_offset: str = "earliest"
     flink_url: str = "http://localhost:8081"
 

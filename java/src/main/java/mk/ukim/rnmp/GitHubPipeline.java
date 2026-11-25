@@ -16,8 +16,8 @@ public final class GitHubPipeline {
         if (args.has("help")) {
             System.out.println("--job both|analytics|events --mode replay|stream --start-offset earliest|latest --input-topic github-events "
                     + "--analytics-topic github-user-sessions --events-topic github-user-alerts "
-                    + "--session-gap-minutes 30 --watermark-seconds 180 --idle-seconds 0 --quiet-seconds 1800 "
-                    + "--bootstrap-servers localhost:9092 (alias --bootstrap) --parallelism 1; --ooo aliases --watermark-seconds");
+                    + "--session-gap-minutes 30 --watermark-seconds 180 --idle-seconds 10 --quiet-seconds 1800 "
+                    + "--bootstrap-servers localhost:9092 (alias --bootstrap) --partitions 3 --parallelism 3; --ooo aliases --watermark-seconds");
             return;
         }
         String job = args.get("job", "both");
@@ -42,10 +42,11 @@ public final class GitHubPipeline {
         }
         long sessionGapMinutes = args.getLong("session-gap-minutes", 30);
         long watermarkSeconds = args.getLong("watermark-seconds", args.getLong("ooo", 180));
-        long idleSeconds = args.getLong("idle-seconds", 0);
+        long idleSeconds = args.getLong("idle-seconds", 10);
         long quietSeconds = args.getLong("quiet-seconds", 1800);
-        int parallelism = args.getInt("parallelism", 1);
-        if (sessionGapMinutes <= 0 || watermarkSeconds < 0 || idleSeconds < 0 || quietSeconds <= 0 || parallelism <= 0) {
+        int parallelism = args.getInt("parallelism", 3);
+        int partitions = args.getInt("partitions", 3);
+        if (sessionGapMinutes <= 0 || watermarkSeconds < 0 || idleSeconds < 0 || quietSeconds <= 0 || parallelism <= 0 || partitions <= 0) {
             throw new IllegalArgumentException("Session gap, quiet period and parallelism must be positive; watermark and idleness must be nonnegative");
         }
         Math.multiplyExact(sessionGapMinutes, 60_000);
@@ -56,7 +57,7 @@ public final class GitHubPipeline {
         topics.add(input);
         if (runAnalytics) topics.add(analytics);
         if (runEvents) topics.add(alerts);
-        Common.prepareTopics(bootstrapServers, topics);
+        Common.prepareTopics(bootstrapServers, topics, partitions);
 
         StreamExecutionEnvironment environment = StreamExecutionEnvironment.getExecutionEnvironment();
         environment.setRuntimeMode(RuntimeExecutionMode.STREAMING);

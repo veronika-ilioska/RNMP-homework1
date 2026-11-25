@@ -1,7 +1,7 @@
 """Run the earliest/latest Kafka experiment and save measured JSON/Markdown reports.
 
 Requires the course Kafka in python/docker-compose.yml and this project's Flink services.
-Experiment topics are single-partition. Both scenarios use fresh topics.
+Experiment topics have three partitions. Both scenarios use fresh topics.
 Only submitted experiment jobs drain.
 """
 
@@ -73,7 +73,7 @@ class Experiment:
     def create_topics(self, topics):
         admin = KafkaAdminClient(bootstrap_servers=self.args.bootstrap_servers.split(','))
         try:
-            admin.create_topics([NewTopic(topic, 1, 1, topic_configs={'retention.ms': '-1'})
+            admin.create_topics([NewTopic(topic, 3, 1, topic_configs={'retention.ms': '-1'})
                                  for topic in topics])
             def leaders_ready():
                 metadata = admin.describe_topics(topics)
@@ -104,7 +104,8 @@ class Experiment:
                           '--bootstrap-servers', 'kafka:9093',
                           '--analytics-topic', topics['analytics'], '--events-topic', topics['events'],
                           '--session-gap-minutes', '30', '--watermark-seconds', '180', '--quiet-seconds', '1800',
-                          '--idle-seconds', '0', '--group-id', self.prefix + '-' + case,
+                          '--idle-seconds', '0', '--parallelism', '1', '--partitions', '3',
+                          '--group-id', self.prefix + '-' + case,
                           log_name=case + '-submit.log')
         match = re.search(r'JobID\s+([0-9a-f]{32})', output)
         if not match:
@@ -146,14 +147,16 @@ class Experiment:
         return self.wait(consumed, 'The job did not consume all input records')
 
     def latest_ready(self, topics):
-        partition = topics['input'] + '-0'
+        partitions = {topics['input'] + '-' + str(i) for i in range(3)}
         def ready():
             logs = self.cli('logs', '--no-color', '--since', '5m', 'taskmanager')
+            evidence = {}
             for line in logs.splitlines():
-                if partition in line and ('offset=0' in line or 'offset 0' in line):
-                    if 'Resetting offset' in line or 'Seeking to offset' in line:
-                        return line
-            return None
+                if ('offset=0' in line or 'offset 0' in line) and ('Resetting offset' in line or 'Seeking to offset' in line):
+                    for partition in partitions:
+                        if partition in line:
+                            evidence[partition] = line
+            return '\n'.join(evidence.values()) if len(evidence) == len(partitions) else None
         evidence = self.wait(ready, 'Latest source did not confirm its starting position at offset zero')
         (self.directory / 'latest-source-ready.log').write_text(evidence + '\n', encoding='utf-8')
         return evidence
@@ -202,7 +205,7 @@ class Experiment:
         first = self.snapshot(topics)
         before_idle = self.metrics(job_id)
         # Wall-clock silence is not an event-time end-of-input signal.
-        # Keep the single-partition source active during this observation.
+        # Keep all source partitions active during this observation.
         time.sleep(10)
         partial = self.snapshot(topics)
         if any(first[branch]['rows'] != partial[branch]['rows'] for branch in first):
@@ -257,8 +260,9 @@ class Experiment:
             if len(records) != len(self.events):
                 raise AssertionError('Input topic record count differs from the file')
             digest = hashlib.sha256()
-            for record in records:
-                digest.update(record.key + b'\0' + str(record.timestamp).encode() + b'\0' + record.value + b'\n')
+            for record in sorted(records, key=lambda item: (item.partition, item.offset)):
+                digest.update(str(record.partition).encode() + b'\0' + record.key + b'\0'
+                              + str(record.timestamp).encode() + b'\0' + record.value + b'\n')
             input_hashes[label] = digest.hexdigest()
         if input_hashes['earliest'] != input_hashes['latest']:
             raise AssertionError('The two input topics contain different messages or orders')
@@ -268,6 +272,7 @@ class Experiment:
                   'kafka_bootstrap_servers': self.args.bootstrap_servers,
                   'input_file': str(self.args.input), 'input_records': len(self.events), 'key_field': 'actor.id',
                   'input_topic_sha256': input_hashes, 'speed': self.args.speed,
+                  'partitions': 3, 'parallelism': 1,
                   'watermark_seconds': 180, 'idle_seconds': 0, 'window_type': 'session',
                   'session_gap_minutes': 30, 'quiet_seconds': 1800, 'event_rule': 'USER_REPOSITORY_INACTIVE',
                   'earliest': first, 'latest': second, 'complete_results_equal': True,
@@ -356,7 +361,7 @@ Kafka е стартуван од [RNMP_homework1]({report['kafka_source_reposito
 и idleness сами по себе не значат крај на влезот.
 
 Автоматското означување на изворот како idle е исклучено (`--idle-seconds 0`).
-Така единствената партиција останува активна за набљудувањето на watermark-от.
+Така партициите остануваат активни за набљудувањето на watermark-от.
 Idleness исклучува тивки партиции од пресметката; не создава ново event time.
 
 `stop --drain` испрати финален `MAX_WATERMARK`, ги затвори преостанатите прозорци

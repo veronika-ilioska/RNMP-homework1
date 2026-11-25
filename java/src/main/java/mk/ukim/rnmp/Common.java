@@ -63,17 +63,23 @@ public final class Common {
         return strategy;
     }
 
-    public static void prepareTopics(String bootstrapServers, Collection<String> topics) throws Exception {
+    public static void prepareTopics(String bootstrapServers, Collection<String> topics, int partitions) throws Exception {
 
         try (AdminClient admin = AdminClient.create(Map.of("bootstrap.servers", bootstrapServers))) {
             var created = admin.createTopics(topics.stream()
-                    .map(topic -> new NewTopic(topic, 1, (short) 1).configs(Map.of("retention.ms", "-1")))
+                    .map(topic -> new NewTopic(topic, partitions, (short) 1).configs(Map.of("retention.ms", "-1")))
                     .toList());
             for (var future : created.values().values()) {
                 try {
                     future.get();
                 } catch (ExecutionException error) {
                     if (!(error.getCause() instanceof TopicExistsException)) throw error;
+                }
+            }
+            for (var topic : admin.describeTopics(topics).allTopicNames().get().values()) {
+                if (topic.partitions().size() < partitions) {
+                    throw new IllegalArgumentException("Topic " + topic.name() + " has fewer than "
+                            + partitions + " partitions; use a fresh topic");
                 }
             }
         }

@@ -9,9 +9,10 @@ param(
     [string]$EventsTopic = 'github-user-alerts',
     [ValidateRange(1, 1000000)][long]$SessionGapMinutes = 30,
     [ValidateRange(0, 100000000)][long]$WatermarkSeconds = 180,
-    [ValidateRange(0, 100000000)][long]$IdleSeconds = 0,
+    [ValidateRange(0, 100000000)][long]$IdleSeconds = 10,
     [ValidateRange(1, 100000000)][long]$QuietSeconds = 1800,
-    [ValidateRange(1, 4)][int]$Parallelism = 1,
+    [ValidateRange(1, 4)][int]$Parallelism = 3,
+    [ValidateRange(1, 100000)][int]$Partitions = 3,
     [string]$BootstrapServers = 'kafka:9093',
     [string]$PythonDirectory = (Join-Path (Split-Path -Parent $PSScriptRoot) 'python'),
     [switch]$Build,
@@ -58,7 +59,7 @@ try {
         '--input-topic', $InputTopic, '--analytics-topic', $AnalyticsTopic,
         '--events-topic', $EventsTopic, '--session-gap-minutes', "$SessionGapMinutes",
         '--watermark-seconds', "$WatermarkSeconds", '--idle-seconds', "$IdleSeconds", '--quiet-seconds', "$QuietSeconds",
-        '--parallelism', "$Parallelism", '--bootstrap-servers', $BootstrapServers
+        '--parallelism', "$Parallelism", '--partitions', "$Partitions", '--bootstrap-servers', $BootstrapServers
     )
     & docker @flinkArguments
     if ($LASTEXITCODE -ne 0) { throw 'Java Flink job failed. See the error above and the Flink dashboard.' }

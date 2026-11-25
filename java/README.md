@@ -38,7 +38,7 @@ The homework keeps the required extensions to those examples. The JSON
 deserializer reads nested `actor`/`repo` fields. The sink also writes the user
 Kafka key and event timestamp, so it uses `OutputRecord` rather than a plain
 string. The watermark bound is 180 data seconds for the producer's 120-second
-delay; idleness remains configurable and defaults to 0 for the single partition.
+delay; idleness defaults to 10 wall-clock seconds for live processing across three partitions.
 Offsets and bounded replay are arguments rather than the examples' fixed latest
 offset and continuous input.
 
@@ -56,14 +56,14 @@ not already installed.
 
 The `.run` directory supplies two Application configurations in the Run selector:
 
-- **GitHub - Replay run3 (both modules)** reads the already-produced
-  `github-users-run3` topic from earliest, flushes the final sessions, and finishes.
-- **GitHub - Live (both modules)** waits for live records on `github-users-repo1`.
+- **GitHub - Replay (both modules)** reads the already-produced
+  `github-users-multi1` topic from earliest, flushes the final sessions, and finishes.
+- **GitHub - Live (both modules)** waits for live records on `github-users-multi1`.
   Start this before **Producer - IDE live** in PyCharm.
 
 Both run `mk.ukim.rnmp.GitHubPipeline` locally, connect to Kafka at
-`localhost:9092`, and write to `github-user-sessions-repo1` and
-`github-user-alerts-repo1`. Kafka from the course repo must already be healthy.
+`localhost:9092`, and write to `github-user-sessions-multi1` and
+`github-user-alerts-multi1`. Kafka from the course repo must already be healthy.
 Run `docker compose up -d --wait` inside `python`. Flink runs inside
 the IntelliJ process; submitting another Docker Flink job is unnecessary.
 The exercise-style `ide` Maven profile activates in IntelliJ and includes the
@@ -264,7 +264,7 @@ For a native Maven run, use Java 17 and the `ide` profile (from this folder):
 
 ```powershell
 $env:MAVEN_OPTS = '--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED'
-mvn -Pide compile exec:java "-Dexec.args=--job both --mode stream --start-offset earliest --bootstrap localhost:9092 --input-topic github-users-repo1 --analytics-topic github-user-sessions-repo1 --events-topic github-user-alerts-repo1 --ooo 180"
+mvn -Pide compile exec:java "-Dexec.args=--job both --mode stream --start-offset earliest --bootstrap localhost:9092 --input-topic github-users-multi1 --analytics-topic github-user-sessions-multi1 --events-topic github-user-alerts-multi1 --ooo 180"
 ```
 
 Use the default profile for a cluster JAR. Logging dependencies are available
@@ -281,11 +281,11 @@ docker compose -f ..\docker-compose.yml exec -T jobmanager flink run /opt/flink/
 All timer, watermark, and window durations use **data time**, independent of
 producer speed. Streaming mode needs advancing watermarks: a finite source that
 stops producing leaves final windows and buffered tail events pending. Replay
-mode closes them at end of input. The single-partition setup defaults to
-`-IdleSeconds 0` (automatic idle-channel marking disabled). `-IdleSeconds` /
-`--idle-seconds` can enable idle-channel exclusion for multi-partition streams.
-For this single-partition comparison keep it at 0 so the source remains active
-during the no-data observation. Idleness does not generate new event time.
+mode closes them at end of input. Live processing defaults to three partitions,
+parallelism 3 and `--idle-seconds 10`, so an inactive partition can be excluded
+from watermark computation. Idleness does not create new event time. The
+controlled offset experiment explicitly uses parallelism 1 and idleness 0 with
+three partitions to keep the no-data observation and metrics comparable.
 
 After a continuous job has consumed the final record, finish it with a final
 watermark using `stop --drain`. This closes the pending windows and fires the
@@ -303,7 +303,7 @@ Checkpoints run every ten seconds and Kafka delivery is at least once. This loca
 configure durable checkpoint storage or automatic recovery after deleting its
 containers. Failures and reruns can produce duplicates. User histories
 remain in managed state for the job lifetime; they are not evicted automatically.
-The default parallelism is 1 for the class's one-partition input; the TaskManager
+The default parallelism is 3 for the three-partition topics; the TaskManager
 has four slots for experiments and concurrent jobs.
 
 The Flink services use the `processing` Compose profile. Kafka is managed

@@ -122,16 +122,18 @@ def create_producer(bootstrap_servers):
     )
 
 
-def prepare_topic(bootstrap_servers, topic):
+def prepare_topic(bootstrap_servers, topic, partitions=3):
     """Keep historical event timestamps on newly created homework topics."""
     from kafka.admin import KafkaAdminClient, NewTopic
     from kafka.errors import TopicAlreadyExistsError
 
     admin = KafkaAdminClient(bootstrap_servers=bootstrap_servers.split(","))
     try:
-        admin.create_topics([NewTopic(topic, 1, 1, topic_configs={"retention.ms": "-1"})])
+        admin.create_topics([NewTopic(topic, partitions, 1, topic_configs={"retention.ms": "-1"})])
     except TopicAlreadyExistsError:
-        pass
+        actual = len(admin.describe_topics([topic])[0]['partitions'])
+        if actual < partitions:
+            raise ValueError(f"Topic {topic} has {actual} partitions; use a fresh topic for {partitions} partitions")
     finally:
         admin.close()
 
@@ -149,12 +151,15 @@ def arguments():
     parser.add_argument("--input", type=Path, required=True, help="JSONL or .json.gz input file")
     parser.add_argument("--bootstrap-servers", default="localhost:9092")
     parser.add_argument("--topic", default="github-events")
+    parser.add_argument("--partitions", type=int, default=3, help="Partition count for a new topic")
     parser.add_argument("--timestamp-field", default="created_at", help="ISO 8601 field with timezone")
     parser.add_argument("--key-field", default="actor.id", help="Nested field used as the Kafka key (default: acting user ID)")
     parser.add_argument("--speed", type=float, default=60, help="Data seconds per real second (60 = 1h in 1min)")
     parser.add_argument("--late-fraction", type=float, default=0.1, help="Fraction of records to delay, from 0 to 1")
     parser.add_argument("--delay-seconds", type=float, default=120, help="Extra delay in DATA seconds")
     args = parser.parse_args()
+    if args.partitions <= 0:
+        parser.error("Partitions must be positive")
     if not math.isfinite(args.speed) or args.speed <= 0:
         parser.error("--speed must be finite and greater than zero")
     if not math.isfinite(args.late_fraction) or not 0 <= args.late_fraction <= 1:
@@ -175,7 +180,7 @@ def main():
         logging.info("Loaded %s events; speed=%sx; planned duration=%.2fs",
                      len(events), args.speed,
                      (schedule[-1].due_ms - events[0].timestamp_ms) / 1000 / args.speed)
-        prepare_topic(args.bootstrap_servers, args.topic)
+        prepare_topic(args.bootstrap_servers, args.topic, args.partitions)
         producer = create_producer(args.bootstrap_servers)
         stats = replay(schedule, events[0].timestamp_ms, args.speed,
                        lambda scheduled: send_event(producer, args.topic, scheduled))

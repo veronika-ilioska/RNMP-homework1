@@ -81,11 +81,11 @@ These use the original course consumer. From Git Bash inside `python`, you can
 run the same consumers in two separate terminals:
 
 ```bash
-./run.sh consume_messages.py github-user-sessions-repo1
+./run.sh consume_messages.py github-user-sessions-multi1
 ```
 
 ```bash
-./run.sh consume_messages.py github-user-alerts-repo1
+./run.sh consume_messages.py github-user-alerts-multi1
 ```
 
 ## 5. Start the producer last
@@ -131,12 +131,18 @@ The saved configurations already use these names:
 
 | Purpose | Topic |
 |---|---|
-| Producer output / Flink input | `github-users-repo1` |
-| Flink session output | `github-user-sessions-repo1` |
-| Flink alert output | `github-user-alerts-repo1` |
+| Producer output / Flink input | `github-users-multi1` |
+| Flink session output | `github-user-sessions-multi1` |
+| Flink alert output | `github-user-alerts-multi1` |
+
+New topics have **3 partitions**, and Flink defaults to **parallelism 3**.
+The producer accepts `--partitions`; Java accepts `--partitions` and
+`--parallelism`. User IDs remain Kafka keys, so each user's events stay together.
+Existing one-partition topics keep their records and configuration. Use the new
+`multi1` topics above; old records will not move into new partitions.
 
 For a clean second run, stop the current producer and Java application and
-choose fresh names, for example replace `repo1` with `repo2` in the Java,
+choose fresh names, for example replace `multi1` with `multi2` in the Java,
 producer, dashboard and consumer Run configurations. Then follow steps 2–5.
 Kafka appends records, so repeatedly sending the same hour into the same active
 job can cause duplicate input and events behind its existing watermark.
@@ -201,3 +207,6 @@ connector **5.0.0-2.2**, matching the exercise POM. Python uses `kafka-python==2
 Submit the GitHub repository link on Moodle and give the teaching assistant access.
 The repository includes the source code, configuration, PDF documentation and
 comparison reports. Keep the dataset, virtual environments and build outputs out of Git.
+
+The recorded comparison report describes the earlier single-partition run.
+Re-run the comparison command to generate measurements for three partitions.

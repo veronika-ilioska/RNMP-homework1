@@ -18,9 +18,9 @@ Open this `python` folder and set the project interpreter to
 `.venv\Scripts\python.exe`.
 The `.run` directory supplies these saved configurations in the Run selector:
 
-- **Producer - IDE live** sends your dataset to `github-users-repo1` at speed 60.
-- **Consumer - Sessions** displays JSON from `github-user-sessions-repo1`.
-- **Consumer - Notifications** displays JSON from `github-user-alerts-repo1`.
+- **Producer - IDE live** sends your dataset to `github-users-multi1` at speed 60.
+- **Consumer - Sessions** displays JSON from `github-user-sessions-multi1`.
+- **Consumer - Notifications** displays JSON from `github-user-alerts-multi1`.
 - **Dashboard - Stream observatory** starts the web dashboard at
   `http://127.0.0.1:8501`, monitoring the same three IDE topics.
 
@@ -31,8 +31,8 @@ docker compose up -d --wait
 ```
 
 Start IntelliJ's **GitHub - Live (both modules)** first, then the dashboard
-and two consumers, and finally **Producer - IDE live**. For the data already in `github-users-run3`, run the
-consumers and IntelliJ's **GitHub - Replay run3 (both modules)** instead.
+and two consumers, and finally **Producer - IDE live**. For the data already in `github-users-multi1`, run the
+consumers and IntelliJ's **GitHub - Replay (both modules)** instead.
 The live job stays running after the producer finishes and needs advancing event
 time to close the final sessions. Replay closes them automatically at its end.
 Edit **Run > Edit Configurations > Parameters** to change topics, dataset, or
@@ -94,15 +94,15 @@ Kafka's automatic topic creation is enabled in the class configuration.
 To inspect messages, run in a second terminal:
 
 ```powershell
-.\.venv\Scripts\python.exe consume_messages.py github-user-sessions-repo1
+.\.venv\Scripts\python.exe consume_messages.py github-user-sessions-multi1
 ```
 
 This is the original course consumer. From Git Bash in this folder:
 
 ```bash
-./run.sh consume_messages.py github-user-sessions-repo1
+./run.sh consume_messages.py github-user-sessions-multi1
 # In another terminal:
-./run.sh consume_messages.py github-user-alerts-repo1
+./run.sh consume_messages.py github-user-alerts-multi1
 ```
 
 It prints `Received message: <JSON>` and takes the topic as the first argument.
@@ -143,8 +143,9 @@ Watermarks belong in the downstream processor (such as Flink). Extract
 `timestamp` as event time there. A watermark allowance below the configured
 delay can expose late events; an allowance above it can accommodate them.
 Delay and watermark allowances use **data time**, not accelerated wall time.
-Kafka ordering is per partition; use a single-partition topic for a simple
-demo of the full send order, or examine partition/key order separately.
+Topics default to three partitions (`--partitions 3`). Kafka routes user keys
+across partitions 0, 1 and 2; ordering is per partition, not global. Events for
+the same user keep the same partition while the partition count is unchanged.
 
 This homework implementation loads and sorts the input in memory, which is
 suitable for this hourly file. Delivery waits for acknowledgements and uses
