@@ -188,11 +188,6 @@ docker compose --profile processing up -d --wait jobmanager taskmanager
 .\python\.venv\Scripts\python.exe python/compare_offsets.py --input "$env:USERPROFILE\Downloads\2026-10-15-15.json.gz"
 ```
 
-The script creates fresh topics, preloads input before earliest, starts latest
-before its producer, compares the JSON outputs, and measures pending results
-before and after drain. Results are in [the comparison report](reports/offset-comparison.md)
-and [JSON measurements](reports/offset-comparison.json).
-
 ## Documentation and submission
 
 - [Python guide](python/README.md)
