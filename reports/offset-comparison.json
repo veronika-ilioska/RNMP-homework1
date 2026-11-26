@@ -1,18 +1,20 @@
 {
-  "run_id": "user-offsets-20261123-145951-af83cd",
-  "generated_at_utc": "2026-11-23T15:02:27.190284+00:00",
+  "run_id": "user-offsets-20261126-193726-6f146d",
+  "generated_at_utc": "2026-11-26T19:41:14.309749+00:00",
   "flink_version": "2.3.0",
   "java_runtime": "openjdk version \"17.0.21.1\" 2026-11-17\nOpenJDK Runtime Environment Temurin-17.0.21.1+2 (build 17.0.21.1+2)\nOpenJDK 64-Bit Server VM Temurin-17.0.21.1+2 (build 17.0.21.1+2, mixed mode, sharing)",
   "kafka_source_repository": "https://github.com/stefanandonov/RNMP_homework1",
-  "kafka_bootstrap_servers": "localhost:19092",
+  "kafka_bootstrap_servers": "localhost:9092",
   "input_file": "C:\\Users\\ilios\\Downloads\\2026-10-15-15.json.gz",
   "input_records": 3582,
   "key_field": "actor.id",
   "input_topic_sha256": {
-    "earliest": "765c8198a950c59945ce96066494c082d630cdf6ea2d2c6b17f07fe1e175c97c",
-    "latest": "765c8198a950c59945ce96066494c082d630cdf6ea2d2c6b17f07fe1e175c97c"
+    "earliest": "be12197e8643e010a2afc3e4d76e57bf4cce60c3a0ed26a5b05e3a65c08952d9",
+    "latest": "be12197e8643e010a2afc3e4d76e57bf4cce60c3a0ed26a5b05e3a65c08952d9"
   },
-  "speed": 600.0,
+  "speed": 60,
+  "partitions": 3,
+  "parallelism": 1,
   "watermark_seconds": 180,
   "idle_seconds": 0,
   "window_type": "session",
@@ -23,35 +25,35 @@
     "start_offset": "earliest",
     "mode": "stream",
     "topics": {
-      "input": "user-offsets-20261123-145951-af83cd-earliest-input",
-      "analytics": "user-offsets-20261123-145951-af83cd-earliest-analytics",
-      "events": "user-offsets-20261123-145951-af83cd-earliest-events"
+      "input": "user-offsets-20261126-193726-6f146d-earliest-input",
+      "analytics": "user-offsets-20261126-193726-6f146d-earliest-analytics",
+      "events": "user-offsets-20261126-193726-6f146d-earliest-events"
     },
-    "job_id": "c02029f9361dd2e99da19a195c4dad1a",
+    "job_id": "4a449e649f49411742c6ae89c2e22e48",
     "producer": {
-      "wall_seconds": 26.057,
+      "wall_seconds": 61.863,
       "sent": 3582,
       "delayed": 358,
-      "out_of_order": 357,
-      "out_of_order_same_key": 83
+      "out_of_order": 358,
+      "out_of_order_same_key": 84
     },
     "source_ready_evidence": null,
-    "seconds_from_submission_to_all_input_received": 20.673,
-    "flink_job_seconds_including_observation_and_drain": 34.258,
-    "wall_seconds_including_submission_observation_and_drain": 43.424,
+    "seconds_from_submission_to_all_input_received": 21.182,
+    "flink_job_seconds_including_observation_and_drain": 33.048,
+    "wall_seconds_including_submission_observation_and_drain": 42.263,
     "state_after_producer_stopped": "RUNNING",
     "metrics_before_drain": {
       "repository_inactivity_notifications": 1358,
-      "currentInputWatermark": 1792079814999,
-      "events_finalized": 3377,
+      "currentInputWatermark": 1792079812999,
+      "events_finalized": 3376,
       "inactivity_timers_fired": 1358,
       "events_received": 3582,
       "events_behind_watermark": 0
     },
     "before_drain": {
       "analytics": {
-        "count": 991,
-        "sha256": "58278b5c57c360d92909dcfc0f5cde94ba80286efe976a05bdffe4b421e4c21c"
+        "count": 990,
+        "sha256": "e7be92c3c02e0cd257d61874a8cd3a6b50e9f5fd67d07fdc695128a4d6be6406"
       },
       "events": {
         "count": 1358,
@@ -69,7 +71,7 @@
       }
     },
     "extra_results_after_drain": {
-      "analytics": 1527,
+      "analytics": 1528,
       "events": 1968
     }
   },
@@ -77,35 +79,35 @@
     "start_offset": "latest",
     "mode": "stream",
     "topics": {
-      "input": "user-offsets-20261123-145951-af83cd-latest-input",
-      "analytics": "user-offsets-20261123-145951-af83cd-latest-analytics",
-      "events": "user-offsets-20261123-145951-af83cd-latest-events"
+      "input": "user-offsets-20261126-193726-6f146d-latest-input",
+      "analytics": "user-offsets-20261126-193726-6f146d-latest-analytics",
+      "events": "user-offsets-20261126-193726-6f146d-latest-events"
     },
-    "job_id": "2e65d0ef2f057f793850c2501e43fa1e",
+    "job_id": "3dfb72e91fcfca32f42f567544b89d2c",
     "producer": {
-      "wall_seconds": 27.222,
+      "wall_seconds": 61.862,
       "sent": 3582,
       "delayed": 358,
-      "out_of_order": 357,
-      "out_of_order_same_key": 83
+      "out_of_order": 358,
+      "out_of_order_same_key": 84
     },
-    "source_ready_evidence": "taskmanager-1  | 2026-11-23 15:01:14,410 INFO  org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer [] - [Consumer clientId=user-offsets-20261123-145951-af83cd-latest-0, groupId=user-offsets-20261123-145951-af83cd-latest] Seeking to offset 0 for partition user-offsets-20261123-145951-af83cd-latest-input-0",
-    "seconds_from_submission_to_all_input_received": 49.542,
-    "flink_job_seconds_including_observation_and_drain": 60.56,
-    "wall_seconds_including_submission_observation_and_drain": 68.972,
+    "source_ready_evidence": "taskmanager-1  | 2026-11-26 19:39:25,342 INFO  org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer [] - [Consumer clientId=user-offsets-20261126-193726-6f146d-latest-0, groupId=user-offsets-20261126-193726-6f146d-latest] Seeking to offset 0 for partition user-offsets-20261126-193726-6f146d-latest-input-1\ntaskmanager-1  | 2026-11-26 19:39:25,344 INFO  org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer [] - [Consumer clientId=user-offsets-20261126-193726-6f146d-latest-0, groupId=user-offsets-20261126-193726-6f146d-latest] Seeking to offset 0 for partition user-offsets-20261126-193726-6f146d-latest-input-2\ntaskmanager-1  | 2026-11-26 19:39:25,344 INFO  org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer [] - [Consumer clientId=user-offsets-20261126-193726-6f146d-latest-0, groupId=user-offsets-20261126-193726-6f146d-latest] Seeking to offset 0 for partition user-offsets-20261126-193726-6f146d-latest-input-0",
+    "seconds_from_submission_to_all_input_received": 73.906,
+    "flink_job_seconds_including_observation_and_drain": 85.561,
+    "wall_seconds_including_submission_observation_and_drain": 94.598,
     "state_after_producer_stopped": "RUNNING",
     "metrics_before_drain": {
       "repository_inactivity_notifications": 1358,
-      "currentInputWatermark": 1792079814999,
-      "events_finalized": 3377,
+      "currentInputWatermark": 1792079812999,
+      "events_finalized": 3376,
       "inactivity_timers_fired": 1358,
       "events_received": 3582,
       "events_behind_watermark": 0
     },
     "before_drain": {
       "analytics": {
-        "count": 991,
-        "sha256": "58278b5c57c360d92909dcfc0f5cde94ba80286efe976a05bdffe4b421e4c21c"
+        "count": 990,
+        "sha256": "e7be92c3c02e0cd257d61874a8cd3a6b50e9f5fd67d07fdc695128a4d6be6406"
       },
       "events": {
         "count": 1358,
@@ -123,12 +125,12 @@
       }
     },
     "extra_results_after_drain": {
-      "analytics": 1527,
+      "analytics": 1528,
       "events": 1968
     }
   },
   "complete_results_equal": true,
   "partial_results_equal": true,
   "all_output_values_valid_json": true,
-  "comparison_topic": "user-offsets-20261123-145951-af83cd-comparison"
+  "comparison_topic": "user-offsets-20261126-193726-6f146d-comparison"
 }
