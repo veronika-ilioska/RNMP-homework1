@@ -28,7 +28,6 @@ class ScheduledEvent:
 
 
 def field(record, path):
-    """Resolve nested fields such as actor.id or actor.login."""
     value = record
     for part in path.split("."):
         value = value[part]
@@ -36,7 +35,7 @@ def field(record, path):
 
 
 def load_events(path, timestamp_field="created_at", key_field="actor.id"):
-    """Read JSONL (optionally gzipped), validate it, then sort by event time."""
+    """Read JSONL, validate it, then sort by event time."""
     opener = gzip.open if path.suffix.lower() == ".gz" else open
     events = []
     with opener(path, "rt", encoding="utf-8") as source:
@@ -55,7 +54,6 @@ def load_events(path, timestamp_field="created_at", key_field="actor.id"):
                 key = field(record, key_field)
                 if isinstance(key, bool) or not isinstance(key, (str, int)) or str(key) == "":
                     raise ValueError("Kafka key must be a nonempty string or integer")
-                # Keep the original GitHub event, adding the class example's fields.
                 value = dict(record)
                 value["key"] = str(key)
                 value["timestamp"] = timestamp_ms
@@ -69,11 +67,7 @@ def load_events(path, timestamp_field="created_at", key_field="actor.id"):
 
 
 def schedule_events(events, late_fraction, delay_seconds):
-    """Hold selected events back while newer events continue to be released.
 
-    Delay is measured in DATA seconds, and is divided by playback speed later.
-    Sorting by release time also drains delayed events after the input ends.
-    """
     delayed_indices = set(random.sample(range(len(events)), round(len(events) * late_fraction)))
     delay_ms = round(delay_seconds * 1000)
     schedule = []
@@ -85,7 +79,6 @@ def schedule_events(events, late_fraction, delay_seconds):
 
 
 def replay(schedule, origin_ms, speed, emit):
-    """Use absolute deadlines to avoid accumulating per-message sleep drift."""
     started = time.monotonic()
     stats = {"sent": 0, "delayed": 0, "out_of_order": 0, "out_of_order_same_key": 0}
     max_timestamp = -1
@@ -123,7 +116,6 @@ def create_producer(bootstrap_servers):
 
 
 def prepare_topic(bootstrap_servers, topic, partitions=3):
-    """Keep historical event timestamps on newly created homework topics."""
     from kafka.admin import KafkaAdminClient, NewTopic
     from kafka.errors import TopicAlreadyExistsError
 
@@ -140,8 +132,7 @@ def prepare_topic(bootstrap_servers, topic, partitions=3):
 
 def send_event(producer, topic, scheduled):
     event = scheduled.event
-    # Set BOTH the JSON event-time field and Kafka's record timestamp.
-    # Waiting for acknowledgement also surfaces delivery errors immediately.
+
     producer.send(topic, key=event.key, value=event.value,
                   timestamp_ms=event.timestamp_ms).get(timeout=30)
 

@@ -7,55 +7,9 @@ are all in this folder. Run the commands below from this folder.
 This folder is based on [RNMP_homework1](https://github.com/stefanandonov/RNMP_homework1).
 Its original consumer, Kafka Compose file and dependencies are retained.
 `produce_messages.py` replaces the random sensor producer with the required
-GitHub dataset producer. The shell runner/startup are adapted for this dataset
-and the Windows/Linux `.venv`; the dashboard and comparison are additions.
-No additional clone is needed. The Java project remains separate in `../java`.
-See [the workspace guide](../README.md) for the complete flow.
+GitHub dataset producer.
 
-## Run with PyCharm's green Run button
-
-Open this `python` folder and set the project interpreter to
-`.venv\Scripts\python.exe`.
-The `.run` directory supplies these saved configurations in the Run selector:
-
-- **Producer - IDE live** sends your dataset to `github-users-multi1` at speed 60.
-- **Consumer - Sessions** displays JSON from `github-user-sessions-multi1`.
-- **Consumer - Notifications** displays JSON from `github-user-alerts-multi1`.
-- **Dashboard - Stream observatory** starts the web dashboard at
-  `http://127.0.0.1:8501`, monitoring the same three IDE topics.
-
-Start Docker Desktop, then start Kafka from PyCharm's Terminal in this folder:
-
-```powershell
-docker compose up -d --wait
-```
-
-Start IntelliJ's **GitHub - Live (both modules)** first, then the dashboard
-and two consumers, and finally **Producer - IDE live**. For the data already in `github-users-multi1`, run the
-consumers and IntelliJ's **GitHub - Replay (both modules)** instead.
-The live job stays running after the producer finishes and needs advancing event
-time to close the final sessions. Replay closes them automatically at its end.
-Edit **Run > Edit Configurations > Parameters** to change topics, dataset, or
-speed; keep the topics consistent between producer, Java, and consumers.
-
-The dashboard can replace the two terminal consumers for visual inspection:
-
-```powershell
-.\.venv\Scripts\python.exe dashboard.py
-```
-
-It uses the existing `kafka-python` dependency and Python's standard HTTP server;
-no Node installation or frontend build is needed. It connects independently with
-no committed group offsets. Use **Connection settings** to inspect other topics.
-Its own earliest/latest selection does not change the Java application's offset
-selection. Full usage and the distinction between preview and Flink-confirmed
-sessions are in [the workspace guide](../README.md).
-
-Uses the course's `kafka-python==2.3.3` dependency and its unmodified Kafka Docker
-configuration. The root Compose file runs only Flink.
-The producer creates a new input topic with `retention.ms=-1` to retain historical
-event timestamps. Existing topics keep their configuration.
-Stop course Kafka with `docker compose down` when finished.
+## How does it work?
 
 The producer reads your `2026-10-15-15.json.gz` file directly; no extraction is
 needed. It contains one GitHub event per line. Defaults:
@@ -112,11 +66,6 @@ partitions. Without a topic argument it keeps the class default, `sensors`.
 The dashboard supplies keys, offsets and record timestamps separately.
 Use fresh topic names for each clean run; Kafka topics are append-only.
 
-For an ordered baseline, use `--late-fraction 0`.
-Use `python produce_messages.py --help` for the available options.
-Inputs may be `.jsonl`, line-delimited `.json`, or their gzip-compressed versions.
-Timestamps must be ISO 8601 strings with a timezone, such as `2026-10-15T15:00:00Z`.
-
 ## How the timing works
 
 1. Read and sort the input by event time. Your source file already contains
@@ -146,25 +95,4 @@ Delay and watermark allowances use **data time**, not accelerated wall time.
 Topics default to three partitions (`--partitions 3`). Kafka routes user keys
 across partitions 0, 1 and 2; ordering is per partition, not global. Events for
 the same user keep the same partition while the partition count is unchanged.
-
-This homework implementation loads and sorts the input in memory, which is
-suitable for this hourly file. Delivery waits for acknowledgements and uses
-retries; it does not provide end-to-end exactly-once replay or restart checkpoints.
-
-
-## Compare earliest and latest
-
-With course Kafka and this project's updated Docker Flink services running, run this from
-the Python folder:
-
-```powershell
-.\.venv\Scripts\python.exe compare_offsets.py --input "$env:USERPROFILE\Downloads\2026-10-15-15.json.gz"
-```
-
-The script produces the same data twice into fresh Kafka topics, starts the
-Java jobs at the requested offsets, compares both JSON outputs, and records
-timing and watermark behavior in `../reports/`. It publishes one additional
-JSON message with the comparison to its own Kafka topic. The existing result
-topics are not reused. See [the workspace instructions](../README.md) for
-building and starting the Java services.
 

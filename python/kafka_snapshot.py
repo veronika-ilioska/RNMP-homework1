@@ -1,5 +1,3 @@
-"""Read a finite, read-only Kafka snapshot for the required offset comparison."""
-
 import time
 
 from kafka import KafkaConsumer, TopicPartition
