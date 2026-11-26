@@ -200,13 +200,3 @@ and [JSON measurements](reports/offset-comparison.json).
 - [Macedonian project documentation](output/pdf/project-documentation.pdf)
 
 The Python base comes from [the course repository](https://github.com/stefanandonov/RNMP_homework1).
-The Java application follows the supplied `flink-demo (1).zip` examples.
-Flink is **2.3.0**, Java **17**, the Kafka broker **3.9.0**, and the Java Kafka
-connector **5.0.0-2.2**, matching the exercise POM. Python uses `kafka-python==2.3.3`.
-
-Submit the GitHub repository link on Moodle and give the teaching assistant access.
-The repository includes the source code, configuration, PDF documentation and
-comparison reports. Keep the dataset, virtual environments and build outputs out of Git.
-
-The recorded comparison report describes the earlier single-partition run.
-Re-run the comparison command to generate measurements for three partitions.
